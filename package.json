@@ -1,0 +1,42 @@
+{
+  "name": "realtime-api",
+  "version": "0.0.1",
+  "description": "An API that demonstrates the issues and possible solution for concurrency in modern web applications.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/splayfee/realtime-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/splayfee/realtime-api/issues"
+  },
+  "docs": {
+    "url": "https://github.com/splayfee/realtime-api/blob/master/LICENSE-MIT"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "gulp"
+  },
+  "keywords": [
+    "sockets",
+    "examples",
+    "realtime",
+    "retrospectives"
+  ],
+  "homepage": "https://github.com/splayfee/realtime-api",
+  "author": "David LaTour <david@edium.com>",
+  "devDependencies": {
+    "babel-eslint": "^6.1.2",
+    "chai": "^3.3.0",
+    "del": "^2.0.2",
+    "gulp": "^3.9.0",
+    "gulp-eslint": "^3.0.1",
+    "gulp-istanbul": "^1.0.0",
+    "gulp-jsonlint": "^1.1.0",
+    "gulp-mocha": "^3.0.0",
+    "run-sequence": "^1.1.4"
+  },
+  "dependencies": {
+    "socket.io": "^1.4.8"
+  }
+}
