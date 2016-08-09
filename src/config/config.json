@@ -1,0 +1,9 @@
+{
+  "development": {
+    "database": "realtime_example",
+    "username": "dev",
+    "password": "lala4566",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}
