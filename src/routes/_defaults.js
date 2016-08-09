@@ -33,8 +33,10 @@ function addDefaultRoutes(modelName, routePath, concurrencyProtection, include) 
  */
 module.exports = (app) => {
   _app = app;
+
   addDefaultRoutes('task', 'tasks');
   const userRoutes = addDefaultRoutes('user', 'users');
   userRoutes.changeMiddleware = [hashPassword];
+
   return defaultRoutes;
 };
