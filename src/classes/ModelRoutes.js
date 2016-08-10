@@ -16,17 +16,17 @@ const STATUS = require('../enums/http_status');
  * @class
  */
 class ModelRoutes {
-
   /**
    * Constructor for ModelMediator
    * @constructor
    * @param {String} modelName The model name.
    * @param {String} routePath The base route path.
+   * @param {Object} io The socket server.
    * @param {Boolean} [concurrencyProtection] Flag that limits updates to require latest timestamp.
    * @param {Object} [include] Optional include object used to include related data.
    * @param {Object} [router] Optional router otherwise a new one is created.
    */
-  constructor(modelName, routePath, concurrencyProtection, include, router) {
+  constructor(modelName, routePath, io, concurrencyProtection, include, router) {
     if (concurrencyProtection instanceof Object) {
       include = concurrencyProtection;
       concurrencyProtection = false;
@@ -117,6 +117,8 @@ class ModelRoutes {
      * @type {Object}
      */
     this.include = include;
+
+    this.io = io;
 
     /**
      * Instantiate the mediator.
@@ -212,7 +214,11 @@ class ModelRoutes {
         _.merge(req.body, req.params);
         this.mediator.createOne(req.body)
           .then(
-            results => ModelRoutes.handleCreateSuccess(res, results),
+            results => {
+              ModelRoutes.handleCreateSuccess(res, results);
+              const item = _.merge(req.body, results);
+              this.io.emit('CREATE', { type: this.modelName, item });
+            },
             error => ModelRoutes.handleError(res, error)
           );
       });
@@ -274,7 +280,11 @@ class ModelRoutes {
         _.merge(req.body, req.params);
         this.mediator.updateOne(req.body, req.params)
           .then(
-            results => ModelRoutes.handleSuccess(res, results),
+            results => {
+              ModelRoutes.handleSuccess(res, results);
+              const item = _.merge(req.body, results);
+              this.io.emit('UPDATE', { type: this.modelName, item });
+            },
             error => ModelRoutes.handleError(res, error)
           );
       });
@@ -292,7 +302,10 @@ class ModelRoutes {
         const queryAndParams = _.merge(req.query, req.params);
         this.mediator.updateMany(req.body, queryAndParams)
           .then(
-            results => ModelRoutes.handleSuccess(res, results),
+            results => {
+              ModelRoutes.handleSuccess(res, results);
+              this.io.emit('UPDATE-MANY', { type: this.modelName, item: results });
+            },
             error => ModelRoutes.handleError(res, error)
           );
       });
@@ -309,7 +322,10 @@ class ModelRoutes {
         const queryAndParams = _.merge(req.query, req.params);
         this.mediator.deleteOne(queryAndParams)
           .then(
-            results => ModelRoutes.handleSuccess(res, results),
+            results => {
+              ModelRoutes.handleSuccess(res, results);
+              this.io.emit('DELETE', { type: this.modelName, item: queryAndParams });
+            },
             error => ModelRoutes.handleError(res, error)
           );
       });
@@ -326,7 +342,10 @@ class ModelRoutes {
         const queryAndParams = _.merge(req.query, req.params);
         this.mediator.deleteAll(queryAndParams)
           .then(
-            () => ModelRoutes.handleSuccess(res),
+            () => {
+              ModelRoutes.handleSuccess(res);
+              this.io.emit('DELETE-ALL', { type: this.modelName });
+            },
             error => ModelRoutes.handleError(res, error)
           );
       });

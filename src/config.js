@@ -3,7 +3,7 @@ const CONFIG = {
   LIMIT: '50mb',
   API_PORT: 3000,
   SOCKET_PORT: 4000,
-  JWT_KEY: '__jwt__',
+  JWT_KEY: 'authorization',
   TOKEN_SECRET: '5F4943hDYUGUYDS743YUGGUYdygusgf35241',
   ENV: 'development'
 };

@@ -22,15 +22,13 @@ module.exports = (sequelize, DataTypes) => {
       completed: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
+        defaultValue: false,
         validate: {
-          len: [0, 75]
-        }
-      },
-      due_date: {
-        allowNull: false,
-        type: DataTypes.DATE,
-        validate: {
-          len: [0, 255]
+          isBoolean: (value) => {
+            if (typeof value !== 'boolean') {
+              throw new Error('Only boolean values are allowed.');
+            }
+          }
         }
       }
     },

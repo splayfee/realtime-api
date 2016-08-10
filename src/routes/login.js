@@ -6,6 +6,6 @@ const authenticate = require('../middleware/authenticate');
 
 const router = express.Router({ mergeParams: true });
 
-router.post('/authenticate', validateJSON, authenticate);
+router.post('/login', validateJSON, authenticate);
 
 module.exports = router;

@@ -1,14 +1,15 @@
 'use strict';
 
+const jwt = require('jsonwebtoken');
 const config = require('./config');
 const compression = require('compression');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const authentication = require('./routes/authentication');
+const login = require('./routes/login');
 const enableCORS = require('./middleware/enableCORS');
-const validateJSON = require('./middleware/validateJSON');
 const error = require('./middleware/error');
+const io = require('socket.io')();
 
 const app = express();
 
@@ -26,14 +27,40 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(enableCORS);
 
 // This route is not protected by middleware.
-app.use(config.API_BASE, authentication);
+app.use(config.API_BASE, login);
 
 // Build default API routes using the standard API.
-require('./routes/_defaults')(app);
+require('./routes/_defaults')(app, io);
 
 // Final catch-all.
 app.use(error);
 
 // Start the server.
 app.listen(config.API_PORT);
-console.log(`REST server started on port  ${config.API_PORT}.`);
+console.log(`REST server started on port ${config.API_PORT}.`);
+
+
+/*
+ What follows is the socket pieces.
+*/
+io.on('connection', (socket) => {
+  const token = socket.handshake.query.token;
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+
+  if (token) {
+    jwt.verify(token, config.TOKEN_SECRET, (err, decoded) => {
+      if (err) {
+        console.log('User connection error.', err);
+        socket.disconnect();
+      }
+      console.log(`User ID ${decoded.sub} connected.`);
+    });
+  } else {
+    socket.disconnect();
+  }
+});
+io.listen(config.SOCKET_PORT);
+console.log(`Socket server started on port ${config.SOCKET_PORT}`);
