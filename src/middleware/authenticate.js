@@ -1,3 +1,5 @@
+'use strict';
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -6,8 +8,13 @@ const db = require('../models');
 const Errors = require('../classes/Errors');
 const ModelRoutes = require('../classes/ModelRoutes');
 
+let counter = 0;
 
 const authenticate = (req, res) => {
+
+  counter++;
+  console.log(counter);
+
   if (req.body.password) {
     const password = req.body.password;
     db.user.findOne({ where: { email: req.body.email } })

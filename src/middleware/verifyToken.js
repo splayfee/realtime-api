@@ -1,11 +1,15 @@
 'use strict';
 
+let counter = 0;
+
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 const Errors = require('../classes/Errors');
 const ModelRoutes = require('../classes/ModelRoutes');
 
 const verifyToken = (req, res, next) => {
+  counter++;
+  console.log('COUNTER: ', counter);
   // THE JWT can be sent via he headers or a form POST.
   const token = req.headers[config.JWT_KEY] || req.body[config.JWT_KEY];
 

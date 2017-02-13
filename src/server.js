@@ -10,6 +10,7 @@ const login = require('./routes/login');
 const enableCORS = require('./middleware/enableCORS');
 const error = require('./middleware/error');
 const io = require('socket.io')();
+const locks = require('./classes/locks');
 
 const app = express();
 
@@ -45,9 +46,20 @@ console.log(`REST server started on port ${config.API_PORT}.`);
 */
 io.on('connection', (socket) => {
   const token = socket.handshake.query.token;
+  let userId = null;
+  // TODO: Lock all of a user's items when disconnecting.
 
   socket.on('disconnect', () => {
-    console.log('User disconnected');
+    console.log(`User ID ${userId} disconnected`);
+    locks.unlockByTokens(userId)
+  });
+
+  socket.on('LOCK', (data) => {
+    locks.add(data);
+  });
+
+  socket.on('UNLOCK', (data) => {
+    locks.remove(data);
   });
 
   if (token) {
@@ -56,6 +68,7 @@ io.on('connection', (socket) => {
         console.log('User connection error.', err);
         socket.disconnect();
       }
+      userId = decoded.sub;
       console.log(`User ID ${decoded.sub} connected.`);
     });
   } else {
@@ -64,3 +77,5 @@ io.on('connection', (socket) => {
 });
 io.listen(config.SOCKET_PORT);
 console.log(`Socket server started on port ${config.SOCKET_PORT}`);
+
+

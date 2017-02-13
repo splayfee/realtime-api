@@ -9,7 +9,7 @@ const ModelMediator = require('./ModelMediator');
 const Errors = require('../classes/Errors');
 const validateJSON = require('../middleware/validateJSON');
 const STATUS = require('../enums/http_status');
-
+const locks = require('../classes/locks');
 
 /**
  * This class defines all default end points for the specified entity.
@@ -318,6 +318,10 @@ class ModelRoutes {
       this._deleteOneMiddleware,
       validateJSON,
       (req, res) => {
+        if (locks.isLocked(this.modelName, req.params.id)) {
+          return ModelRoutes.handleError(res, new Error(`The ${this.modelName} with ID = ${req.params.id} is locked by another user.`));
+        }
+
         // Combine the query and the params as one.
         const queryAndParams = _.merge(req.query, req.params);
         this.mediator.deleteOne(queryAndParams)
